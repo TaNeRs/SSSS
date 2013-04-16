@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SSSS")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Cisco")]
+[assembly: AssemblyCompany("HC")]
 [assembly: AssemblyProduct("SSSS")]
-[assembly: AssemblyCopyright("Copyright © Cisco 2013")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
