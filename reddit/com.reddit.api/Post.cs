@@ -580,6 +580,5 @@ namespace com.reddit.api
         }
 
         #endregion
-
     }
 }

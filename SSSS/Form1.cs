@@ -19,9 +19,11 @@ namespace SSSS {
         }
 
         void GetPosts(string subreddit) {
+            toolStripStatusLabel1.Text = "Getting postings... Please wait";
             var session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
             //var list = Sub.Get(session, subreddit);
             postList = Sub.GetListing(session, subreddit);
+            toolStripStatusLabel1.Text = "Done!";
         }
 
         private void button1_Click(object sender, EventArgs e) {
