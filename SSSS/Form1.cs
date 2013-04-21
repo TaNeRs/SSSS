@@ -21,14 +21,14 @@ namespace SSSS {
         }
 
         void GetPosts(string subreddit) {
-            toolStripStatusLabel1.Text = "Getting postings... Please wait";
             var session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
-            //var list = Sub.Get(session, subreddit);
+
             postList = Sub.GetListing(session, subreddit);
             toolStripStatusLabel1.Text = "Done!";
         }
 
         private void button1_Click(object sender, EventArgs e) {
+            toolStripStatusLabel1.Text = "Getting postings... Please wait";
             GetPosts(SubredditTextBox.Text.ToString());
             PostListView.DisplayMember = "Title";
             PostListView.ValueMember = "ID";
@@ -37,7 +37,15 @@ namespace SSSS {
 
         private void PostListView_SelectedIndexChanged(object sender, EventArgs e) {
             string postID = (sender as ListControl).SelectedValue.ToString();
-            string opText = ((sender as ListBox).SelectedItem as Post).SelfText;
+            Post post = ((sender as ListBox).SelectedItem as Post);
+            string opText;// = ((sender as ListBox).SelectedItem as Post).SelfText;
+            
+            if (IsLinkOrImage(post))
+                opText = GetExternalPage(post);
+            else
+                opText = post.SelfText;
+                
+            
             PostPreview.Text = opText;
 
             opText = WordStopper.RemoveStopWords(opText);
@@ -52,6 +60,19 @@ namespace SSSS {
             {
                 Console.WriteLine(word + " --> " + stemmer.Stem(word));
             }
+        }
+        
+        private bool IsLinkOrImage(Post post) {
+            if(post.IsSelf)
+                return false;
+            return true;
+        }
+
+        private string GetExternalPage(Post post) {
+            WebClient client = new WebClient();
+            string htmlCode = client.DownloadString(post.Url);
+
+            return htmlCode;
         }
     }
 }
