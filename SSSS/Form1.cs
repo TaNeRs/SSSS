@@ -10,6 +10,7 @@ using System.Configuration;
 using com.reddit.api;
 using Iveonik.Stemmers;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace SSSS {
     public partial class Form1 : Form {
