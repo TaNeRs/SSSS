@@ -49,20 +49,43 @@ namespace SSSS {
             }
             
             PostPreview.Text = opText;
+            ProcessedPost.Text = "";
+
+            Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
 
             opText = WordStopper.RemoveStopWords(opText);
             opText = Regex.Replace(opText, @"[^\w\s+]", "");
             string[] opArr = opText.Split(null);
             if (!IsLinkOrImage(post))
-                TestStemmer(new EnglishStemmer(), opArr);
+            {
+                currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
+                foreach (KeyValuePair<string, int> stem in currentPostStems)
+                {
+                    ProcessedPost.Text += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
+                }
+            }
         }
 
-        private static void TestStemmer(IStemmer stemmer, params string[] words)
+        private static Dictionary<string, int> TestStemmer(IStemmer stemmer, params string[] words)
         {
+            Dictionary<string, int> currentStems = new Dictionary<string, int>();
+            string stemmedWord;
+
             foreach (string word in words)
             {
-                Console.WriteLine(word + " --> " + stemmer.Stem(word));
+                stemmedWord = stemmer.Stem(word);
+                Console.WriteLine(word + " --> " + stemmedWord);
+                if (currentStems.ContainsKey(stemmedWord))
+                {
+                    currentStems[stemmedWord] = currentStems[stemmedWord] + 1;
+                }
+                else
+                {
+                    currentStems.Add(stemmedWord, 1);
+                }
             }
+
+            return currentStems;
         }
         
         private bool IsLinkOrImage(Post post) {
@@ -82,6 +105,12 @@ namespace SSSS {
             List<Post> postList = new List<Post>();
             postList.Add(post);
             string[][] wordCountTable = Utilities.GenerateCountVectorTable(postList);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            PrefForm pref = new PrefForm();
+            pref.Show();
         }
         
         //*********************************Vincent's Test Code****************************/
