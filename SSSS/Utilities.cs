@@ -50,6 +50,95 @@ namespace SSSS {
             }
         }
 
+        public static string[][] GenerateCountVectorTable(List<Post> list) {
+            string[][] ret = null;
+            Dictionary<string, int> dict = new Dictionary<string,int>();
+            int numOfPosts = list.Count, numOfWords, idx = 0;
+
+            //get the number of post and the number of different words from all the posts
+            foreach (Post p in list) {
+                CountUpWords(p, dict);
+            }
+            numOfWords = dict.Count;
+
+            if (numOfPosts > 0 && numOfWords > 0) {
+
+                //init the string array.  The [0] position is the name of the row or column
+                ret = new string[numOfWords + 1][];
+                for (int i = 0; i < ret.Length; i++) {
+                    ret[i] = new string[numOfPosts + 1];
+                }
+
+                //fill out the names of the rows and columns
+                idx = 1;
+                foreach (KeyValuePair<string, int> pair in dict) {
+                    ret[idx][0] = pair.Key;
+                    idx++;
+                }
+                idx = 1;
+                foreach (Post p in list) {
+                    ret[0][idx] = p.SubRedditID;
+                    idx++;
+                }
+
+                //insert the word count into the table;
+                foreach (Post p in list) {
+                    dict.Clear();
+                    CountUpWords(p, dict);
+                    foreach (KeyValuePair<string, int> pair in dict) {
+                        if (setTableValue(ret, p.SubRedditID, pair.Key, pair.Value.ToString())) {
+                            //success
+                        }
+                        else { /*fail*/ }
+                    }
+                }
+            }
+            else { /*return*/ }
+
+            return ret;
+        }
+
+        private static bool setTableValue(string[][] strArray, string row, string col, string val) {
+            bool isDone = false;
+            for (int i = 0; i < strArray.Length; i++) {
+                if (strArray[i].ToString().Equals(col)) {
+                    for (int j = 0; j < strArray[i].Length; j++) {
+                        if (strArray[i][j].ToString().Equals(row)) {
+                            strArray[i][j] = val;
+                            isDone = true;
+                            break;
+                        }
+                    }
+                    if (isDone) {
+                        break;
+                    }
+                }
+            }
+            return isDone;
+        }
+
+        private static int getTableValue(string[][] strArray, string row, string col) {
+            bool isDone = false;
+            int ret = -1;
+            for (int i = 0; i < strArray.Length; i++) {
+                if (strArray[i].ToString().Equals(col)) {
+                    for (int j = 0; j < strArray[i].Length; j++) {
+                        if (strArray[i][j].ToString().Equals(row)) {
+                            if (!string.IsNullOrEmpty(strArray[i][j])) {
+                                ret = Convert.ToInt32(strArray[i][j]);
+                            }
+                            isDone = true;
+                            break;
+                        }
+                    }
+                    if (isDone) {
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
+
         public static List<Dictionary<string, int>> NFold(int n, Dictionary<string, int> dict) {
             int min = 0;
             int max = dict.Count;
