@@ -43,16 +43,18 @@ namespace SSSS {
             
             if (IsLinkOrImage(post))
                 opText = GetExternalPage(post);
-            else
+            else {
                 opText = post.SelfText;
-                
+                CompareNewPost(post);
+            }
             
             PostPreview.Text = opText;
 
             opText = WordStopper.RemoveStopWords(opText);
             opText = Regex.Replace(opText, @"[^\w\s+]", "");
             string[] opArr = opText.Split(null);
-            TestStemmer(new EnglishStemmer(), opArr);
+            if (!IsLinkOrImage(post))
+                TestStemmer(new EnglishStemmer(), opArr);
         }
 
         private static void TestStemmer(IStemmer stemmer, params string[] words)
@@ -74,6 +76,12 @@ namespace SSSS {
             string htmlCode = client.DownloadString(post.Url);
 
             return htmlCode;
+        }
+
+        private void CompareNewPost(Post post) {
+            List<Post> postList = new List<Post>();
+            postList.Add(post);
+            string[][] wordCountTable = Utilities.GenerateCountVectorTable(postList);
         }
         
         //*********************************Vincent's Test Code****************************/
