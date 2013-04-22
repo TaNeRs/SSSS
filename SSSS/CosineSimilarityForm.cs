@@ -13,11 +13,11 @@ using System.Text.RegularExpressions;
 using System.Net;
 
 namespace SSSS {
-    public partial class SpamSpottingForm : Form {
+    public partial class CosineSimilarityForm : Form {
 
         List<Post> postList;
 
-        public SpamSpottingForm() {
+        public CosineSimilarityForm() {
             InitializeComponent();
         }
 

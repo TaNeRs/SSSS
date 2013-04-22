@@ -32,26 +32,29 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.RemoveStopWordsCheckbox = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.StemWordsCheckbox = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.ProcessedPost = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // SubredditTextBox
             // 
+            this.SubredditTextBox.Enabled = false;
             this.SubredditTextBox.Location = new System.Drawing.Point(107, 14);
             this.SubredditTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SubredditTextBox.Name = "SubredditTextBox";
             this.SubredditTextBox.Size = new System.Drawing.Size(497, 22);
             this.SubredditTextBox.TabIndex = 0;
-            this.SubredditTextBox.Text = "bitcoin";
+            this.SubredditTextBox.Text = "hailcorporate";
             // 
             // PostListView
             // 
@@ -125,9 +128,9 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.checkBox3);
+            this.panel1.Controls.Add(this.RemoveStopWordsCheckbox);
             this.panel1.Controls.Add(this.checkBox2);
-            this.panel1.Controls.Add(this.checkBox1);
+            this.panel1.Controls.Add(this.StemWordsCheckbox);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Location = new System.Drawing.Point(813, 12);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -135,16 +138,16 @@
             this.panel1.Size = new System.Drawing.Size(181, 174);
             this.panel1.TabIndex = 7;
             // 
-            // checkBox3
+            // RemoveStopWordsCheckbox
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(7, 84);
-            this.checkBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(152, 21);
-            this.checkBox3.TabIndex = 3;
-            this.checkBox3.Text = "Remove Stopwords";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.RemoveStopWordsCheckbox.AutoSize = true;
+            this.RemoveStopWordsCheckbox.Location = new System.Drawing.Point(7, 84);
+            this.RemoveStopWordsCheckbox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.RemoveStopWordsCheckbox.Name = "RemoveStopWordsCheckbox";
+            this.RemoveStopWordsCheckbox.Size = new System.Drawing.Size(152, 21);
+            this.RemoveStopWordsCheckbox.TabIndex = 3;
+            this.RemoveStopWordsCheckbox.Text = "Remove Stopwords";
+            this.RemoveStopWordsCheckbox.UseVisualStyleBackColor = true;
             // 
             // checkBox2
             // 
@@ -157,16 +160,16 @@
             this.checkBox2.Text = "Break Hyphens";
             this.checkBox2.UseVisualStyleBackColor = true;
             // 
-            // checkBox1
+            // StemWordsCheckbox
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(7, 30);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(92, 21);
-            this.checkBox1.TabIndex = 1;
-            this.checkBox1.Text = "Stemming";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.StemWordsCheckbox.AutoSize = true;
+            this.StemWordsCheckbox.Location = new System.Drawing.Point(7, 30);
+            this.StemWordsCheckbox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.StemWordsCheckbox.Name = "StemWordsCheckbox";
+            this.StemWordsCheckbox.Size = new System.Drawing.Size(92, 21);
+            this.StemWordsCheckbox.TabIndex = 1;
+            this.StemWordsCheckbox.Text = "Stemming";
+            this.StemWordsCheckbox.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -212,15 +215,35 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(181, 53);
             this.button3.TabIndex = 11;
-            this.button3.Text = "Spot Spurious Spammers, Spitefully";
+            this.button3.Text = "Cosine Similarity";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(813, 356);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(181, 39);
+            this.button4.TabIndex = 12;
+            this.button4.Text = "Jaccard Me!";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(813, 415);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(182, 44);
+            this.button5.TabIndex = 13;
+            this.button5.Text = "kNN";
+            this.button5.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(995, 558);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.ProcessedPost);
@@ -255,15 +278,17 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.CheckBox RemoveStopWordsCheckbox;
         private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox StemWordsCheckbox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox ProcessedPost;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
 
     }
 }

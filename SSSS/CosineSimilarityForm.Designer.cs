@@ -1,5 +1,5 @@
 ﻿namespace SSSS {
-    partial class SpamSpottingForm {
+    partial class CosineSimilarityForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>

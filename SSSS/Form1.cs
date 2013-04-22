@@ -16,26 +16,46 @@ namespace SSSS {
     public partial class Form1 : Form {
 
         List<Post> postList;
-
+        Session session;
         string[][] WordCountTable;
 
         public Form1() {
             InitializeComponent();
-
-            GetPosts("hailcorporate");
-            WordCountTable = Utilities.GenerateCountVectorTable(postList);
+            session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
         }
 
         void GetPosts(string subreddit) {
-            var session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
+            
+            int count = 500; //number of posts to get
+            postList = new List<Post>();
+            for (int i = 0; i < count; i+=100)
+			{
+			    PostListing tempPostList2 = Sub.GetListing(session, subreddit, i.ToString());
+                postList.AddRange(tempPostList2);
+			}
+            
 
-            postList = Sub.GetListing(session, subreddit);
+            List<Post> tempPostList = new List<Post>();
+            foreach (Post item in postList) {
+                if (!IsLinkOrImage(item)) {
+                    if(this.RemoveStopWordsCheckbox.Checked)
+                        item.SelfText = StemWords(item.SelfText);
+                    if(this.StemWordsCheckbox.Checked)
+                        item.SelfText = RemoveStopWords(item.SelfText);
+                    tempPostList.Add(item);
+                }
+            }
+            postList = tempPostList;
             toolStripStatusLabel1.Text = "Done!";
         }
 
         private void button1_Click(object sender, EventArgs e) {
             toolStripStatusLabel1.Text = "Getting postings... Please wait";
             GetPosts(SubredditTextBox.Text.ToString());
+
+            //GetPosts("hailcorporate");
+            WordCountTable = Utilities.GenerateCountVectorTable(postList);
+
             PostListView.DisplayMember = "Title";
             PostListView.ValueMember = "ID";
             PostListView.DataSource = postList;
@@ -44,31 +64,46 @@ namespace SSSS {
         private void PostListView_SelectedIndexChanged(object sender, EventArgs e) {
             string postID = (sender as ListControl).SelectedValue.ToString();
             Post post = ((sender as ListBox).SelectedItem as Post);
+            //string postID = post.
             string opText;// = ((sender as ListBox).SelectedItem as Post).SelfText;
-            
+            string previewText;
+
             if (IsLinkOrImage(post))
-                opText = GetExternalPage(post);
+                opText = previewText = GetExternalPage(post);
             else {
-                opText = post.SelfText;
+                opText = previewText = post.SelfText;
                 CompareNewPost(post);
             }
-            
-            PostPreview.Text = opText;
-            ProcessedPost.Text = "";
 
-            Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
+            PostPreview.Text = previewText;
+            opText = RemoveStopWords(opText);
+            opText = StemWords(opText);
 
+            ProcessedPost.Text = opText;
+        }
+
+        private string RemoveStopWords(string opText) {
             opText = WordStopper.RemoveStopWords(opText);
             opText = Regex.Replace(opText, @"[^\w\s+]", "");
+            return opText;
+        }
+
+        private string StemWords(string opText) {
+            Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
+
             string[] opArr = opText.Split(null);
-            if (!IsLinkOrImage(post))
-            {
-                currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
-                foreach (KeyValuePair<string, int> stem in currentPostStems)
-                {
-                    ProcessedPost.Text += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
-                }
+            string outputText = "";
+            //currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
+            //foreach (KeyValuePair<string, int> stem in currentPostStems)
+            //{
+            //    outputText += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
+            //}
+            EnglishStemmer stemmer = new EnglishStemmer();
+            foreach (string word in opArr) {
+                outputText += stemmer.Stem(word) + " ";
             }
+
+            return outputText;
         }
 
         private static Dictionary<string, int> TestStemmer(IStemmer stemmer, params string[] words)
@@ -119,7 +154,7 @@ namespace SSSS {
         }
 
         private void button3_Click(object sender, EventArgs e) {
-            SpamSpottingForm spamSpottingForm = new SpamSpottingForm();
+            CosineSimilarityForm spamSpottingForm = new CosineSimilarityForm();
             spamSpottingForm.Show();
         }
         
