@@ -67,17 +67,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SpamSpottingForm.cs">
+    <Compile Include="CosineSimilarityForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SpamSpottingForm.Designer.cs">
-      <DependentUpon>SpamSpottingForm.cs</DependentUpon>
+    <Compile Include="CosineSimilarityForm.Designer.cs">
+      <DependentUpon>CosineSimilarityForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="JaccardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="JaccardForm.Designer.cs">
+      <DependentUpon>JaccardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KNNForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KNNForm.Designer.cs">
+      <DependentUpon>KNNForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PrefForm.cs">
       <SubType>Form</SubType>
@@ -89,8 +101,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WordStopper.cs" />
     <Compile Include="Utilities.cs" />
-    <EmbeddedResource Include="SpamSpottingForm.resx">
-      <DependentUpon>SpamSpottingForm.cs</DependentUpon>
+    <EmbeddedResource Include="CosineSimilarityForm.resx">
+      <DependentUpon>CosineSimilarityForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -149,11 +161,6 @@
       <Project>{C9BFD1D2-F1E7-4288-A3D7-BB4583566794}</Project>
       <Name>com.reddit.api</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Database1.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
