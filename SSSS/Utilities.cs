@@ -77,7 +77,7 @@ namespace SSSS {
                 }
                 idx = 1;
                 foreach (Post p in list) {
-                    ret[0][idx] = p.SubRedditID;
+                    ret[0][idx] = p.Name;
                     idx++;
                 }
 
@@ -86,7 +86,7 @@ namespace SSSS {
                     dict.Clear();
                     CountUpWords(p, dict);
                     foreach (KeyValuePair<string, int> pair in dict) {
-                        if (setTableValue(ret, p.SubRedditID, pair.Key, pair.Value.ToString())) {
+                        if (setTableValue(ret, p.Name, pair.Key, pair.Value.ToString())) {
                             //success
                         }
                         else { /*fail*/ }
@@ -101,9 +101,9 @@ namespace SSSS {
         private static bool setTableValue(string[][] strArray, string row, string col, string val) {
             bool isDone = false;
             for (int i = 0; i < strArray.Length; i++) {
-                if (strArray[i].ToString().Equals(col)) {
+                if (strArray[i][0] != null && strArray[i][0].ToString().Equals(col)) {
                     for (int j = 0; j < strArray[i].Length; j++) {
-                        if (strArray[i][j].ToString().Equals(row)) {
+                        if (strArray[0][j] != null && strArray[0][j].ToString().Equals(row)) {
                             strArray[i][j] = val;
                             isDone = true;
                             break;
@@ -185,7 +185,25 @@ namespace SSSS {
             return folds;
         }
 
-        public static double CosineSimilarity(Dictionary<string, int> train, Dictionary<string, int> test) {
+        public static double CosineSimilarity(string[] words, string[] train, string[] test) {
+            double ret = -1;
+            Dictionary<string, int> tr = new Dictionary<string, int>();
+            Dictionary<string, int> te = new Dictionary<string, int>();
+
+            for (int i = 0; i < words.Length; i++) {
+                if (words[i] != null) {
+                    tr.Add(words[i], Convert.ToInt32(train[i]));
+                    te.Add(words[i], Convert.ToInt32(test[i]));
+                }
+            }
+
+            if (tr.Count > 0 && te.Count > 0) {
+                ret = CosineSimilarity(tr, te);
+            }
+            return ret;
+        }
+
+        private static double CosineSimilarity(Dictionary<string, int> train, Dictionary<string, int> test) {
             double d1, d2; 
             double ret = -1;
             double n1 = 0;
