@@ -2,44 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using com.reddit.api;
 
 namespace SSSS {
     public static class Utilities {
         #region CONSTANTS
-        public const string LINK_OR_IMAGE = "LinkOrImage";
+
+        //Constants for the column that shows if there is a link or image in the post.
+        public const string LINK_OR_IMAGE = "LinkOrImage"; //!!! This is the header of one of the word column.  What if this word is in a post?  Need to take care of this in the future.
         public const string YES = "Yes";
         public const string NO = "No";
+
         #endregion
 
         #region Public Methods
-        public static double NFoldCrossValidation(int n, Dictionary<string, int> dict) {
-            double ret = 0;
-            //double cs = 0;
-
-            ////divide the dictionary into n-fold
-            //List<Dictionary<string, int>> folds = NFold(n, dict);
-
-            ////do cosine similarity with 
-            //for (int i = 0; i < folds.Count; i++) { //i is the test set
-            //    for (int j = 0; j < folds.Count; j++) {
-            //        if (j != i) { //don't want to eval the same set.
-
-            //        }
-            //        else {
-            //            continue;
-            //        }
-            //    }
-            //}
-
-            return ret;
-        }
 
         public static void CountUpWords(Post post, Dictionary<string, int> dict) {
-            char[] delimit = new char[]{' '};
+            char[] delimit = new char[] { ' ' };
             int ct = 0;
+            string[] words = new string[0];
 
-            string[] words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            if (IsLinkOrImage(post)) {
+                //WebClient client = new WebClient();
+                //string htmlCode = client.DownloadString(post.Url);
+                //words = htmlCode.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            }
+            else {
+                words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            }
+
             for (int i = 0; i < words.Length; i++) {
                 if (dict.TryGetValue(words[i], out ct)) {
                     dict[words[i]] = ct + 1;
@@ -73,6 +65,11 @@ namespace SSSS {
                 ret = new string[numOfWords + 2][];  //include a column for LINK_OR_IMAGE
                 for (int i = 0; i < ret.Length; i++) {
                     ret[i] = new string[numOfPosts + 1];
+                    for (int j = 0; j < ret[i].Length; j++) {
+                        if (i != 0 && j != 0) { //The top left corner should remain null.
+                            ret[i][j] = "0"; //init with "0";
+                        }
+                    }
                 }
 
                 //fill out the names of the rows and columns
@@ -145,6 +142,7 @@ namespace SSSS {
             return true;
         }
 
+        //This function randomly divide the dictionary into n folds.
         public static List<Dictionary<string, int>> NFold(int n, Dictionary<string, int> dict) {
             int min = 0;
             int max = dict.Count;
@@ -193,18 +191,83 @@ namespace SSSS {
 
         public static double CosineSimilarity(string[] words, string[] train, string[] test) {
             double ret = -1;
+            int trInt, teInt;
             Dictionary<string, int> tr = new Dictionary<string, int>();
             Dictionary<string, int> te = new Dictionary<string, int>();
 
             for (int i = 0; i < words.Length; i++) {
                 if (words[i] != null) {
-                    tr.Add(words[i], Convert.ToInt32(train[i]));
-                    te.Add(words[i], Convert.ToInt32(test[i]));
+                    if (Int32.TryParse(train[i], out trInt) && Int32.TryParse(test[i], out teInt)) {
+                        tr.Add(words[i], trInt);
+                        te.Add(words[i], teInt);
+                    }
                 }
             }
 
             if (tr.Count > 0 && te.Count > 0) {
                 ret = CosineSimilarity(tr, te);
+            }
+            return ret;
+        }
+
+        public static double PrecisionUsingCosineSimilarity(string[][] arr, Post testPost) {
+            const double numOfTop = 2;
+            const double threshold = 0.5;
+            double count = 0;
+            double ret = -1, val;
+            string[] row = null;
+            string[] posts = null;
+            string[] words = null;
+            string[] test = new string[arr.Length];
+            double[] cs = new double[arr[0].Length];
+            Dictionary<string, int> te = new Dictionary<string, int>();
+
+            //get the word count of each word in the post.
+            CountUpWords(testPost, te);
+            foreach (KeyValuePair<string, int> pair in te) {
+                for (int i = 0; i < arr.Length; i++) {
+                    if (!string.IsNullOrEmpty(arr[i][0]) && arr[i][0].Equals(pair.Key)) { 
+                        test[i] = pair.Value.ToString();
+                        break;
+                    }
+                }
+            }
+
+            //find the cosine similarity between the posts in the vector table and the test post
+            words = getRow(arr, 0);
+            for (int i = 0; i < arr[0].Length; i++) {
+                if (!string.IsNullOrEmpty(arr[0][i])) { //check if there is a post
+                    row = getRow(arr, i);
+                    val = CosineSimilarity(words, row, test);
+                    cs[i] = val;
+                }
+                else {
+                    cs[i] = 0; //default to 0
+                }
+            }
+
+            //sort the cosine similarity values
+            posts = new string[arr[0].Length];
+            Array.Copy(arr[0], posts, arr[0].Length);
+            ReverseComparer rc = new ReverseComparer();
+            Array.Sort(cs, posts, rc);
+
+            //get the precision value = relevent posts out of top posts
+            for (int i = 0; i < numOfTop; i++) {
+                if (!string.IsNullOrEmpty(posts[i]) && cs[i] > threshold) { //It is a post and cs is > threshold
+                    count++;
+                }
+            }
+            ret = count / numOfTop;
+
+            return ret;
+        }
+
+        private static string[] getRow(string[][] ar, int row) {
+            string[] ret = new string[ar.Length];
+
+            for (int i = 0; i < ar.Length; i++) {
+                ret[i] = ar[i][row];
             }
             return ret;
         }
@@ -284,5 +347,12 @@ namespace SSSS {
         }
 
         #endregion
+    }
+
+    public class ReverseComparer : IComparer<double> {
+        public int Compare(double x, double y) {
+            // Compare y and x in reverse order. 
+            return y.CompareTo(x);
+        }
     }
 }
