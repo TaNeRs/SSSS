@@ -28,10 +28,12 @@ namespace SSSS {
             
             int count = 500; //number of posts to get
             postList = new List<Post>();
+            string tempLastPostID = "";
             for (int i = 0; i < count; i+=100)
 			{
-			    PostListing tempPostList2 = Sub.GetListing(session, subreddit, i.ToString());
+                PostListing tempPostList2 = Sub.GetListing(session, subreddit, tempLastPostID);
                 postList.AddRange(tempPostList2);
+                tempLastPostID = tempPostList2.Last().Name;
 			}
             
 
