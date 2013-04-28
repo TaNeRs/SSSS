@@ -157,6 +157,11 @@ namespace SSSS {
             CosineSimilarityForm spamSpottingForm = new CosineSimilarityForm();
             spamSpottingForm.Show();
         }
+
+        private void button5_Click(object sender, EventArgs e) {
+            KNNForm knnform = new KNNForm();
+            knnform.Show();
+        }
         
     }
 }
