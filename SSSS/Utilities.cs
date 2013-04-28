@@ -2,38 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using com.reddit.api;
 
 namespace SSSS {
     public static class Utilities {
+        #region CONSTANTS
 
-        public static double NFoldCrossValidation(int n, Dictionary<string, int> dict) {
-            double ret = 0;
-            //double cs = 0;
+        //Constants for the column that shows if there is a link or image in the post.
+        public const string LINK_OR_IMAGE = "LinkOrImage"; //!!! This is the header of one of the word column.  What if this word is in a post?  Need to take care of this in the future.
+        public const string YES = "Yes";
+        public const string NO = "No";
 
-            ////divide the dictionary into n-fold
-            //List<Dictionary<string, int>> folds = NFold(n, dict);
+        #endregion
 
-            ////do cosine similarity with 
-            //for (int i = 0; i < folds.Count; i++) { //i is the test set
-            //    for (int j = 0; j < folds.Count; j++) {
-            //        if (j != i) { //don't want to eval the same set.
-
-            //        }
-            //        else {
-            //            continue;
-            //        }
-            //    }
-            //}
-
-            return ret;
-        }
+        #region Public Methods
 
         public static void CountUpWords(Post post, Dictionary<string, int> dict) {
-            char[] delimit = new char[]{' '};
+            char[] delimit = new char[] { ' ' };
             int ct = 0;
+            string[] words = new string[0];
 
-            string[] words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            if (IsLinkOrImage(post)) {
+                //WebClient client = new WebClient();
+                //string htmlCode = client.DownloadString(post.Url);
+                //words = htmlCode.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            }
+            else {
+                words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+            }
+
             for (int i = 0; i < words.Length; i++) {
                 if (dict.TryGetValue(words[i], out ct)) {
                     dict[words[i]] = ct + 1;
@@ -64,29 +62,45 @@ namespace SSSS {
             if (numOfPosts > 0 && numOfWords > 0) {
 
                 //init the string array.  The [0] position is the name of the row or column
-                ret = new string[numOfWords + 1][];
+                ret = new string[numOfWords + 2][];  //include a column for LINK_OR_IMAGE
                 for (int i = 0; i < ret.Length; i++) {
                     ret[i] = new string[numOfPosts + 1];
+                    for (int j = 0; j < ret[i].Length; j++) {
+                        if (i != 0 && j != 0) { //The top left corner should remain null.
+                            ret[i][j] = "0"; //init with "0";
+                        }
+                    }
                 }
 
                 //fill out the names of the rows and columns
-                idx = 1;
-                foreach (KeyValuePair<string, int> pair in dict) {
+                ret[1][0] = LINK_OR_IMAGE; //The first column tells if it is a link or image
+                idx = 2;
+                foreach (KeyValuePair<string, int> pair in dict) { //columns
                     ret[idx][0] = pair.Key;
                     idx++;
                 }
                 idx = 1;
-                foreach (Post p in list) {
+                foreach (Post p in list) { //rows
                     ret[0][idx] = p.Name;
                     idx++;
                 }
 
-                //insert the word count into the table;
+                //insert the word count and link or image check into the table;
                 foreach (Post p in list) {
+
+                    //check if there is a link or image in p
+                    if (IsLinkOrImage(p)) {
+                        SetTableValue(ret, p.Name, LINK_OR_IMAGE, YES);
+                    }
+                    else {
+                        SetTableValue(ret, p.Name, LINK_OR_IMAGE, NO);
+                    }
+
+                    //count up words in p
                     dict.Clear();
                     CountUpWords(p, dict);
                     foreach (KeyValuePair<string, int> pair in dict) {
-                        if (setTableValue(ret, p.Name, pair.Key, pair.Value.ToString())) {
+                        if (SetTableValue(ret, p.Name, pair.Key, pair.Value.ToString())) {
                             //success
                         }
                         else { /*fail*/ }
@@ -98,34 +112,17 @@ namespace SSSS {
             return ret;
         }
 
-        private static bool setTableValue(string[][] strArray, string row, string col, string val) {
-            bool isDone = false;
-            for (int i = 0; i < strArray.Length; i++) {
-                if (strArray[i][0] != null && strArray[i][0].ToString().Equals(col)) {
-                    for (int j = 0; j < strArray[i].Length; j++) {
-                        if (strArray[0][j] != null && strArray[0][j].ToString().Equals(row)) {
-                            strArray[i][j] = val;
-                            isDone = true;
-                            break;
-                        }
-                    }
-                    if (isDone) {
-                        break;
-                    }
-                }
-            }
-            return isDone;
-        }
+        public static string GetTableValue(string[][] strArray, string postName, string word) { //row=postName, col=word
 
-        private static int getTableValue(string[][] strArray, string row, string col) {
             bool isDone = false;
-            int ret = -1;
+            string ret = null;
             for (int i = 0; i < strArray.Length; i++) {
-                if (strArray[i].ToString().Equals(col)) {
+                if (strArray[i][0] != null && strArray[i][0].ToString().Equals(word)) {
                     for (int j = 0; j < strArray[i].Length; j++) {
-                        if (strArray[i][j].ToString().Equals(row)) {
+                        if (strArray[0][j] != null && strArray[0][j].ToString().Equals(postName)) {
                             if (!string.IsNullOrEmpty(strArray[i][j])) {
-                                ret = Convert.ToInt32(strArray[i][j]);
+                                //ret = Convert.ToInt32(strArray[i][j]);
+                                ret = strArray[i][j].ToString();
                             }
                             isDone = true;
                             break;
@@ -139,6 +136,13 @@ namespace SSSS {
             return ret;
         }
 
+        public static bool IsLinkOrImage(Post post) {
+            if (post.IsSelf)
+                return false;
+            return true;
+        }
+
+        //This function randomly divide the dictionary into n folds.
         public static List<Dictionary<string, int>> NFold(int n, Dictionary<string, int> dict) {
             int min = 0;
             int max = dict.Count;
@@ -147,7 +151,7 @@ namespace SSSS {
             int fIdx = 0;
             int rIdx;
             List<string> keys = new List<string>();
-            Random rand = new Random();          
+            Random rand = new Random();
             List<Dictionary<string, int>> folds = new List<Dictionary<string, int>>();
             Dictionary<string, int> copy = new Dictionary<string, int>(dict);
 
@@ -187,13 +191,16 @@ namespace SSSS {
 
         public static double CosineSimilarity(string[] words, string[] train, string[] test) {
             double ret = -1;
+            int trInt, teInt;
             Dictionary<string, int> tr = new Dictionary<string, int>();
             Dictionary<string, int> te = new Dictionary<string, int>();
 
             for (int i = 0; i < words.Length; i++) {
                 if (words[i] != null) {
-                    tr.Add(words[i], Convert.ToInt32(train[i]));
-                    te.Add(words[i], Convert.ToInt32(test[i]));
+                    if (Int32.TryParse(train[i], out trInt) && Int32.TryParse(test[i], out teInt)) {
+                        tr.Add(words[i], trInt);
+                        te.Add(words[i], teInt);
+                    }
                 }
             }
 
@@ -201,6 +208,105 @@ namespace SSSS {
                 ret = CosineSimilarity(tr, te);
             }
             return ret;
+        }
+
+        public static double PrecisionUsingCosineSimilarity(string[][] arr, Post testPost) {
+            const double numOfTop = 2;
+            const double threshold = 0.5;
+            double count = 0;
+            double ret = -1, val;
+            string[] row = null;
+            string[] posts = null;
+            string[] words = null;
+            string[] test = new string[arr.Length];
+            double[] cs = new double[arr[0].Length];
+            Dictionary<string, int> te = new Dictionary<string, int>();
+
+            //get the word count of each word in the post.
+            CountUpWords(testPost, te);
+            foreach (KeyValuePair<string, int> pair in te) {
+                for (int i = 0; i < arr.Length; i++) {
+                    if (!string.IsNullOrEmpty(arr[i][0]) && arr[i][0].Equals(pair.Key)) { 
+                        test[i] = pair.Value.ToString();
+                        break;
+                    }
+                }
+            }
+
+            //find the cosine similarity between the posts in the vector table and the test post
+            words = getRow(arr, 0);
+            for (int i = 0; i < arr[0].Length; i++) {
+                if (!string.IsNullOrEmpty(arr[0][i])) { //check if there is a post
+                    row = getRow(arr, i);
+                    val = CosineSimilarity(words, row, test);
+                    cs[i] = val;
+                }
+                else {
+                    cs[i] = 0; //default to 0
+                }
+            }
+
+            //sort the cosine similarity values
+            posts = new string[arr[0].Length];
+            Array.Copy(arr[0], posts, arr[0].Length);
+            ReverseComparer rc = new ReverseComparer();
+            Array.Sort(cs, posts, rc);
+
+            //get the precision value = relevent posts out of top posts
+            for (int i = 0; i < numOfTop; i++) {
+                if (!string.IsNullOrEmpty(posts[i]) && cs[i] > threshold) { //It is a post and cs is > threshold
+                    count++;
+                }
+            }
+            ret = count / numOfTop;
+
+            return ret;
+        }
+
+        private static string[] getRow(string[][] ar, int row) {
+            string[] ret = new string[ar.Length];
+
+            for (int i = 0; i < ar.Length; i++) {
+                ret[i] = ar[i][row];
+            }
+            return ret;
+        }
+
+        public static void PrintTableToOutput(string[][] arr) {
+            for (int i = 0; i < arr.Length; i++) {
+                for (int j = 0; j < arr[i].Length; j++) {
+                    if (arr[i][j] == null) {
+                        System.Console.Write("| null ");
+                    }
+                    else {
+                        System.Console.Write("| " + arr[i][j] + " ");
+                    }
+                }
+                System.Console.WriteLine();
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool SetTableValue(string[][] strArray, string row, string col, string val) {
+            bool isDone = false;
+            for (int i = 0; i < strArray.Length; i++) {
+                if (strArray[i][0] != null && strArray[i][0].ToString().Equals(col)) {
+                    for (int j = 0; j < strArray[i].Length; j++) {
+                        if (strArray[0][j] != null && strArray[0][j].ToString().Equals(row)) {
+                            strArray[i][j] = val;
+                            isDone = true;
+                            break;
+                        }
+                    }
+                    if (isDone) {
+                        break;
+                    }
+                }
+            }
+            return isDone;
         }
 
         private static double CosineSimilarity(Dictionary<string, int> train, Dictionary<string, int> test) {
@@ -238,6 +344,15 @@ namespace SSSS {
                 val = Math.Sqrt(val);
             }
             return val;
+        }
+
+        #endregion
+    }
+
+    public class ReverseComparer : IComparer<double> {
+        public int Compare(double x, double y) {
+            // Compare y and x in reverse order. 
+            return y.CompareTo(x);
         }
     }
 }
