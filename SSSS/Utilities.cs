@@ -24,6 +24,11 @@ namespace SSSS {
             string[] words = new string[0];
 
             if (IsLinkOrImage(post)) {
+                if (string.IsNullOrEmpty(post.SelfText)) { //an image
+                    return;
+                } else { //is a link
+                    words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+                }
                 //WebClient client = new WebClient();
                 //string htmlCode = client.DownloadString(post.Url);
                 //words = htmlCode.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
