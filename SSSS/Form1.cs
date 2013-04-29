@@ -39,12 +39,17 @@ namespace SSSS {
 
             List<Post> tempPostList = new List<Post>();
             foreach (Post item in postList) {
-                if (!IsLinkOrImage(item)) {
-                    if(this.RemoveStopWordsCheckbox.Checked)
+                if (!IsLinkOrImage(item)) { //this is a link to an external page or redd.it or to an image
+                    if (this.RemoveStopWordsCheckbox.Checked)
                         item.SelfText = StemWords(item.SelfText);
-                    if(this.StemWordsCheckbox.Checked)
+                    if (this.StemWordsCheckbox.Checked)
                         item.SelfText = RemoveStopWords(item.SelfText);
                     tempPostList.Add(item);
+                } else {
+                    if(item.Url.Contains("reddit.com") || item.Url.Contains("redd.it")) {
+                        WebClient client = new WebClient();
+                        string htmlCode = client.DownloadString(item.Url);
+                    }
                 }
             }
             postList = tempPostList;
