@@ -24,6 +24,11 @@ namespace SSSS {
             string[] words = new string[0];
 
             if (IsLinkOrImage(post)) {
+                if (string.IsNullOrEmpty(post.SelfText)) { //an image
+                    return;
+                } else { //is a link
+                    words = post.SelfText.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
+                }
                 //WebClient client = new WebClient();
                 //string htmlCode = client.DownloadString(post.Url);
                 //words = htmlCode.Split(delimit, StringSplitOptions.RemoveEmptyEntries);
@@ -210,9 +215,9 @@ namespace SSSS {
             return ret;
         }
 
-        public static double PrecisionUsingCosineSimilarity(string[][] arr, Post testPost) {
-            const double numOfTop = 2;
-            const double threshold = 0.5;
+        public static double PrecisionUsingCosineSimilarity(string[][] arr, Post testPost, double poolSize, double threshold) {
+            //const double poolSize = 2;
+            //const double threshold = 0.5;
             double count = 0;
             double ret = -1, val;
             string[] row = null;
@@ -253,12 +258,12 @@ namespace SSSS {
             Array.Sort(cs, posts, rc);
 
             //get the precision value = relevent posts out of top posts
-            for (int i = 0; i < numOfTop; i++) {
+            for (int i = 0; i < poolSize; i++) {
                 if (!string.IsNullOrEmpty(posts[i]) && cs[i] > threshold) { //It is a post and cs is > threshold
                     count++;
                 }
             }
-            ret = count / numOfTop;
+            ret = count / poolSize;
 
             return ret;
         }

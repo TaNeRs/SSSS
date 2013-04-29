@@ -16,16 +16,64 @@ namespace SSSS {
     public partial class CosineSimilarityForm : Form {
 
         List<Post> postList;
+        Session session;
 
         public CosineSimilarityForm() {
             InitializeComponent();
+            session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
         }
 
-        void GetPosts(string subreddit) {
-            var session = User.Login(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["password"]);
+        public string[][] WordCountTable { get; set; }
 
-            postList = Sub.GetListing(session, subreddit);
+        public bool IsRemoveStopWordsChecked { get; set; }
+        public bool IsStemWordsChecked { get; set; }
+
+        void GetPosts(string subreddit) {
+
+            int count = 500; //number of posts to get
+            postList = new List<Post>();
+            for (int i = 0; i < count; i += 100) {
+                PostListing tempPostList2 = Sub.GetListing(session, subreddit, SubSortBy.TopMonth, i.ToString());
+                postList.AddRange(tempPostList2);
+            }
+
+
+            List<Post> tempPostList = new List<Post>();
+            foreach (Post item in postList) {
+                if (!IsLinkOrImage(item)) {
+                    if (IsRemoveStopWordsChecked)
+                        item.SelfText = StemWords(item.SelfText);
+                    if (IsStemWordsChecked)
+                        item.SelfText = RemoveStopWords(item.SelfText);
+                    tempPostList.Add(item);
+                }
+            }
+            postList = tempPostList;
             toolStripStatusLabel1.Text = "Done!";
+        }
+
+        private string RemoveStopWords(string opText) {
+            opText = WordStopper.RemoveStopWords(opText);
+            opText = Regex.Replace(opText, @"[^\w\s+]", "");
+            return opText;
+        }
+
+        private string StemWords(string opText) {
+            Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
+
+            string[] opArr = opText.Split(null);
+            string outputText = "";
+            //currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
+            //foreach (KeyValuePair<string, int> stem in currentPostStems)
+            //{
+            //    outputText += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
+            //}
+            EnglishStemmer stemmer = new EnglishStemmer();
+            foreach (string word in opArr) {
+                outputText += stemmer.Stem(word) + " ";
+            }
+
+            return outputText;
         }
 
         private void button1_Click(object sender, EventArgs e) {
@@ -40,30 +88,43 @@ namespace SSSS {
             string postID = (sender as ListControl).SelectedValue.ToString();
             Post post = ((sender as ListBox).SelectedItem as Post);
             string opText;// = ((sender as ListBox).SelectedItem as Post).SelfText;
-            
+
+            Indicator_Dunno();
             if (IsLinkOrImage(post))
                 opText = GetExternalPage(post);
             else {
                 opText = post.SelfText;
-                CompareNewPost(post);
+                double poolSize = 2, threshold = 0.5, du;
+                Double.TryParse(tbxPoolSize.Text, out poolSize);
+                Double.TryParse(tbxThreshold.Text, out threshold);
+
+                du = Utilities.PrecisionUsingCosineSimilarity(WordCountTable, post, poolSize, threshold);
+                tbxPrecision.Text = du.ToString();
+
+                if (du > 0.5) {
+                    Indicator_IsSpam();
+                }
+                else {
+                    Indicator_IsNotSpam();
+                }
             }
-            
+
             PostPreview.Text = opText;
             ProcessedPost.Text = "";
 
-            Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
+            //Dictionary<string, int> currentPostStems = new Dictionary<string, int>();
 
-            opText = WordStopper.RemoveStopWords(opText);
-            opText = Regex.Replace(opText, @"[^\w\s+]", "");
-            string[] opArr = opText.Split(null);
-            if (!IsLinkOrImage(post))
-            {
-                currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
-                foreach (KeyValuePair<string, int> stem in currentPostStems)
-                {
-                    ProcessedPost.Text += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
-                }
-            }
+            //opText = WordStopper.RemoveStopWords(opText);
+            //opText = Regex.Replace(opText, @"[^\w\s+]", "");
+            //string[] opArr = opText.Split(null);
+            //if (!IsLinkOrImage(post))
+            //{
+            //    currentPostStems = TestStemmer(new EnglishStemmer(), opArr);
+            //    foreach (KeyValuePair<string, int> stem in currentPostStems)
+            //    {
+            //        ProcessedPost.Text += "Stem: " + stem.Key + "\t\tOccurs: " + stem.Value + Environment.NewLine;
+            //    }
+            //}
         }
 
         private static Dictionary<string, int> TestStemmer(IStemmer stemmer, params string[] words)
@@ -99,12 +160,6 @@ namespace SSSS {
             string htmlCode = client.DownloadString(post.Url);
 
             return htmlCode;
-        }
-
-        private void CompareNewPost(Post post) {
-            List<Post> postList = new List<Post>();
-            postList.Add(post);
-            string[][] wordCountTable = Utilities.GenerateCountVectorTable(postList);
         }
 
         private void Indicator_IsSpam() {
