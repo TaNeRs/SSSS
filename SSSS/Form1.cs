@@ -78,10 +78,10 @@ namespace SSSS {
             }
 
             PostPreview.Text = previewText;
-            opText = RemoveStopWords(opText);
-            opText = StemWords(opText);
+            //opText = RemoveStopWords(opText);
+            //opText = StemWords(opText);
 
-            ProcessedPost.Text = opText;
+            //ProcessedPost.Text = opText;
         }
 
         private string RemoveStopWords(string opText) {
@@ -157,6 +157,9 @@ namespace SSSS {
 
         private void button3_Click(object sender, EventArgs e) {
             CosineSimilarityForm spamSpottingForm = new CosineSimilarityForm();
+            spamSpottingForm.WordCountTable = WordCountTable;
+            spamSpottingForm.IsRemoveStopWordsChecked = RemoveStopWordsCheckbox.Checked;
+            spamSpottingForm.IsStemWordsChecked = StemWordsCheckbox.Checked;
             spamSpottingForm.Show();
         }
 
