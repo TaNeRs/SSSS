@@ -129,6 +129,7 @@ namespace Emgu.CV
             return 0; //signal the process to continute
          } finally
          {
+             Console.WriteLine(status+ funcName+ errMsg+ fileName+ line);
             throw new CvException(status, funcName, errMsg, fileName, line);
          }
       }

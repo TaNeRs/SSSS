@@ -201,7 +201,7 @@ namespace com.reddit.api
 
         #region // Conversion //        
 
-        internal static Post FromJson(JToken data)
+        public static Post FromJson(JToken data)
         {
             return new Post
             {
