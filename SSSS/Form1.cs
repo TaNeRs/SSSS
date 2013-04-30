@@ -46,9 +46,13 @@ namespace SSSS {
                         item.SelfText = RemoveStopWords(item.SelfText);
                     tempPostList.Add(item);
                 } else {
-                    if(item.Url.Contains("reddit.com") || item.Url.Contains("redd.it")) {
-                        WebClient client = new WebClient();
-                        string htmlCode = client.DownloadString(item.Url);
+                    if(this.FollowLinksCheckbox.Checked && (item.Url.Contains("reddit.com") || item.Url.Contains("redd.it"))) {
+                        try {
+                            WebClient client = new WebClient();
+                            string htmlCode = client.DownloadString(item.Url);
+                        } catch {
+                            //do nothing. this is to catch 404s
+                        }
                     }
                 }
             }

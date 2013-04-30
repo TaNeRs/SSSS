@@ -42,6 +42,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
+            this.FollowLinksCheckbox = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -128,6 +129,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.FollowLinksCheckbox);
             this.panel1.Controls.Add(this.RemoveStopWordsCheckbox);
             this.panel1.Controls.Add(this.checkBox2);
             this.panel1.Controls.Add(this.StemWordsCheckbox);
@@ -238,6 +240,17 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // FollowLinksCheckbox
+            // 
+            this.FollowLinksCheckbox.AutoSize = true;
+            this.FollowLinksCheckbox.Location = new System.Drawing.Point(7, 109);
+            this.FollowLinksCheckbox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.FollowLinksCheckbox.Name = "FollowLinksCheckbox";
+            this.FollowLinksCheckbox.Size = new System.Drawing.Size(161, 21);
+            this.FollowLinksCheckbox.TabIndex = 4;
+            this.FollowLinksCheckbox.Text = "Follow External Links";
+            this.FollowLinksCheckbox.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -290,6 +303,7 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.CheckBox FollowLinksCheckbox;
 
     }
 }

@@ -27,8 +27,8 @@ namespace SSSS {
 
         private void TestEmgu(){
             int K = 10;
-            int trainSampleCount = 100;
-            //int trainSampleCount = this.vectorTable[0].Length;
+            //int trainSampleCount = 100;
+            int trainSampleCount = this.vectorTable[0].Length;
 
             #region Generate the traning data and classes
 
