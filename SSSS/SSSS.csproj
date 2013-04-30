@@ -131,6 +131,10 @@
     <Compile Include="JaccardForm.Designer.cs">
       <DependentUpon>JaccardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="JaccardSimilarityForm.cs" />
+    <Compile Include="JaccardSimilarityForm.designer.cs">
+      <DependentUpon>JaccardSimilarityForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="KNNForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -152,6 +156,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="JaccardSimilarityForm.resx">
+      <DependentUpon>JaccardSimilarityForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PrefForm.resx">
       <DependentUpon>PrefForm.cs</DependentUpon>
