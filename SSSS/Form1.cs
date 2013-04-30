@@ -11,6 +11,9 @@ using com.reddit.api;
 using Iveonik.Stemmers;
 using System.Text.RegularExpressions;
 using System.Net;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace SSSS {
     public partial class Form1 : Form {
@@ -49,7 +52,21 @@ namespace SSSS {
                     if(this.FollowLinksCheckbox.Checked && (item.Url.Contains("reddit.com") || item.Url.Contains("redd.it"))) {
                         try {
                             WebClient client = new WebClient();
-                            string htmlCode = client.DownloadString(item.Url);
+                            //string htmlCode = client.DownloadString(item.Url);
+                            string txt = item.Url;
+
+                            Match idMatch = new Regex(".*?(?:[a-z][a-z]+).*?(?:[a-z][a-z]+).*?(?:[a-z][a-z]+).*?(?:[a-z][a-z]+).*?(?:[a-z][a-z]+).*?(?:[a-z][a-z]+).*?((?:[0-9a-z][0-9a-z]+))", RegexOptions.IgnoreCase | RegexOptions.Singleline).Match(txt);
+                            if (idMatch.Success) {
+                                String postidstr = idMatch.Groups[1].ToString();
+                                //Console.Write("(" + postidstr.ToString() + ")" + "\n");
+                                string jsoncode = client.DownloadString("http://www.reddit.com/by_id/" + "t3_" + postidstr + ".json");
+                                //PostListing linkedPost = Post.Get(session, "t3_" + postidstr);
+                                var o = JObject.Parse(jsoncode);
+
+                                //tempPostList.Add(Post.FromJson(o));
+                            }
+
+
                         } catch {
                             //do nothing. this is to catch 404s
                         }

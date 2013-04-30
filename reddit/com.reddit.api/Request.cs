@@ -86,7 +86,7 @@ namespace com.reddit.api
 
             request.ServicePoint.ConnectionLimit = 100;
             request.Timeout = RequestTimeout;
-            request.Method = Method;
+            request.Method = Method == null ? "POST" : Method;
 
             if (request is HttpWebRequest && !string.IsNullOrEmpty(Cookie))
             {                
