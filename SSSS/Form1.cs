@@ -169,7 +169,7 @@ namespace SSSS {
         }
 
         private void button5_Click(object sender, EventArgs e) {
-            KNNForm knnform = new KNNForm();
+            KNNForm knnform = new KNNForm(WordCountTable);
             knnform.Show();
         }
         

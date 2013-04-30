@@ -21,13 +21,14 @@ namespace SSSS {
             InitializeComponent();
         }
 
-        public KNNForm(string[][] tempVectorTable) : base () {
+        public KNNForm(string[][] tempVectorTable) : this() {
             this.vectorTable = tempVectorTable;
         }
 
         private void TestEmgu(){
             int K = 10;
             int trainSampleCount = 100;
+            //int trainSampleCount = this.vectorTable[0].Length;
 
             #region Generate the traning data and classes
 
@@ -38,10 +39,11 @@ namespace SSSS {
 
             Matrix<float> sample = new Matrix<float>(1, 2);
 
+
             Matrix<float> trainData1 = trainData.GetRows(0, trainSampleCount >> 1, 1);
-            trainData1.SetRandNormal(new MCvScalar(200), new MCvScalar(50));
+            //trainData1.SetRandNormal(new MCvScalar(200), new MCvScalar(50));
             Matrix<float> trainData2 = trainData.GetRows(trainSampleCount >> 1, trainSampleCount, 1);
-            trainData2.SetRandNormal(new MCvScalar(300), new MCvScalar(50));
+            //trainData2.SetRandNormal(new MCvScalar(300), new MCvScalar(50));
 
             Matrix<float> trainClasses1 = trainClasses.GetRows(0, trainSampleCount >> 1, 1);
             trainClasses1.SetValue(1);
@@ -87,7 +89,9 @@ namespace SSSS {
                 img.Draw(new CircleF(p2, 2.0f), new Bgr(100, 255, 100), -1);
             }
 
-            Emgu.CV.UI.ImageViewer.Show(img);
+            //Emgu.CV.UI.ImageViewer.Show(img);
+            Emgu.CV.UI.ImageViewer imgviewer = new Emgu.CV.UI.ImageViewer(img);
+            imgviewer.Show();
         }
 
         private void button1_Click(object sender, EventArgs e) {
