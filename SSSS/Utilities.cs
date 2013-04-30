@@ -268,6 +268,98 @@ namespace SSSS {
             return ret;
         }
 
+
+        public static double PrecisionUsingJaccardSimilarity(string[][] arr, Post testPost, double poolSize, double threshold)
+        {
+            double count = 0;
+            double ret = -1;
+            string[] row = null;
+            string[] posts = null;
+            string[] words = null;
+            string[] test = new string[arr.Length];
+            double[] js = new double[arr[0].Length];
+
+            Dictionary<string, int> te = new Dictionary<string, int>();
+
+            //get the word count of each word in the post.
+            CountUpWords(testPost, te);
+            foreach (KeyValuePair<string, int> pair in te)
+            {
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(arr[i][0]) && arr[i][0].Equals(pair.Key))
+                    {
+                        test[i] = pair.Value.ToString();
+                        break;
+                    }
+                }
+            }
+
+            //find the Jaccard similarity between the current training post and the test post
+            words = getRow(arr, 0);
+            for (int i = 0; i < arr[0].Length; i++)
+            {
+                if (!string.IsNullOrEmpty(arr[0][i]))
+                { //check if there is a post
+                    row = getRow(arr, i);
+                    js[i] = JaccardSimilarity(words, row, test);
+                    Console.WriteLine("Finished checking one row. Jaccard coefficient is: " + js[i]);
+
+                }
+                else
+                {
+                    js[i] = 0; //default to 0
+                }
+            }
+
+            //sort the Jaccard similarity values
+            posts = new string[arr[0].Length];
+            Array.Copy(arr[0], posts, arr[0].Length);
+            ReverseComparer rc = new ReverseComparer();
+            Array.Sort(js, posts, rc);
+
+            //get the precision value = relevent posts out of top posts
+            for (int i = 0; i < poolSize; i++)
+            {
+                if (!string.IsNullOrEmpty(posts[i]) && js[i] > threshold)
+                { //It is a post and cs is > threshold
+                    count++;
+                }
+            }
+            ret = count / poolSize;
+
+            return ret;
+        }
+
+        public static double JaccardSimilarity(string[] words, string[] train, string[] test)
+        {
+            double ret = -1;
+            int trInt, teInt;
+            Dictionary<string, int> tr = new Dictionary<string, int>();
+            Dictionary<string, int> te = new Dictionary<string, int>();
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                if (words[i] != null)
+                {
+                    Console.WriteLine("adding this word: " + words[i]);
+
+                    if (Int32.TryParse(train[i], out trInt) && Int32.TryParse(test[i], out teInt))
+                    {
+                        tr.Add(words[i], trInt);
+                        te.Add(words[i], teInt);
+                    }
+                }
+            }
+
+            if (tr.Count > 0 && te.Count > 0)
+            {
+                ret = JaccardSimilarity(tr, te);
+            }
+            return ret;
+        }
+
+
         private static string[] getRow(string[][] ar, int row) {
             string[] ret = new string[ar.Length];
 
@@ -313,6 +405,53 @@ namespace SSSS {
             }
             return isDone;
         }
+
+        private static double JaccardSimilarity(Dictionary<string, int> train, Dictionary<string, int> test)
+        {
+            double d1 = 0;
+            double ret = -1;
+            double n1 = 0;
+            int val;
+
+            //calculate the numerator, interesection of training and test data
+            foreach (KeyValuePair<string, int> pair in test)
+            {
+                if (train.TryGetValue(pair.Key, out val))
+                {
+                    if (val > 0 && pair.Value > 0)
+                    {
+                        Console.WriteLine("Intersecting value is: " + pair.Key + " " + pair.Value);
+                        n1++;
+                    }
+                }
+            }
+
+            Dictionary<string, int>[] dictionaries = new Dictionary<string, int>[] { train, test };
+
+            //calculate the denominator
+            var joinedDictionary = new Dictionary<string, int>();
+            foreach (var dict in dictionaries)
+                foreach (var x in dict)
+                    joinedDictionary[x.Key] = x.Value;
+
+            /*            var joinedDictionary = dictionaries.SelectMany(dict => dict)
+                                     .ToLookup(pair => pair.Key, pair => pair.Value)
+                                     .ToDictionary(group => group.Key, group => group.First()); */
+
+            d1 = joinedDictionary.Count();
+
+            Console.WriteLine("d1 is " + d1);
+            foreach (var entry in joinedDictionary)
+                Console.WriteLine("[{0} {1}]", entry.Key, entry.Value);
+            Console.WriteLine("that's all, folks");
+
+            //calculate Jaccard similarity
+            ret = n1 / d1;
+            Console.WriteLine("Jaccard's coefficient is: " + ret);
+            return ret;
+
+        }
+
 
         private static double CosineSimilarity(Dictionary<string, int> train, Dictionary<string, int> test) {
             double d1, d2; 

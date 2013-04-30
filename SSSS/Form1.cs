@@ -176,6 +176,16 @@ namespace SSSS {
             KNNForm knnform = new KNNForm(WordCountTable);
             knnform.Show();
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            JaccardSimilarityForm jaccardForm = new JaccardSimilarityForm();
+            jaccardForm.WordCountTable = WordCountTable;
+            jaccardForm.IsRemoveStopWordsChecked = RemoveStopWordsCheckbox.Checked;
+            jaccardForm.IsStemWordsChecked = StemWordsCheckbox.Checked;
+            jaccardForm.Show();
+
+        }
         
     }
 }
