@@ -182,7 +182,7 @@ namespace SSSS {
         }
 
         private void button3_Click(object sender, EventArgs e) {
-            CosineSimilarityForm spamSpottingForm = new CosineSimilarityForm();
+            NewKNNForm spamSpottingForm = new NewKNNForm();
             spamSpottingForm.WordCountTable = WordCountTable;
             spamSpottingForm.IsRemoveStopWordsChecked = RemoveStopWordsCheckbox.Checked;
             spamSpottingForm.IsStemWordsChecked = StemWordsCheckbox.Checked;
@@ -190,7 +190,9 @@ namespace SSSS {
         }
 
         private void button5_Click(object sender, EventArgs e) {
-            KNNForm knnform = new KNNForm(WordCountTable);
+            //KNNForm knnform = new KNNForm(WordCountTable);
+            //knnform.Show();
+            NewKNNForm knnform = new NewKNNForm(WordCountTable);
             knnform.Show();
         }
 

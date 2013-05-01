@@ -30,19 +30,20 @@ namespace SSSS {
             //int trainSampleCount = 100;
             int trainSampleCount = this.vectorTable[0].Length-1;
             int trainSampleColumns = this.vectorTable.Length - 2; //subtract two columns for the post id and IsImage
+            int scalingRatio = 10;
 
             #region Generate the traning data and classes
 
             Matrix<float> trainData = new Matrix<float>(trainSampleColumns, trainSampleCount);
             Matrix<float> trainClasses = new Matrix<float>(trainSampleColumns, 1);
 
-            Image<Bgr, Byte> img = new Image<Bgr, byte>(trainSampleColumns, trainSampleCount);
+            Image<Bgr, Byte> img = new Image<Bgr, byte>(trainSampleCount, trainSampleCount);
 
             Matrix<float> sample = new Matrix<float>(1, trainSampleCount);
 
             for (int y = 1; y < this.vectorTable[0].Length - 1; y++) {
                 for (int x = 2; x < this.vectorTable.Length - 1; x++) {
-                    trainData.Data.SetValue(Int32.Parse(this.vectorTable[x][y]),x-2,y-1);
+                    trainData.Data.SetValue(Int32.Parse(this.vectorTable[x][y])*scalingRatio,x-2,y-1);
                 }
             }
 
