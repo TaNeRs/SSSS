@@ -182,7 +182,7 @@ namespace SSSS {
         }
 
         private void button3_Click(object sender, EventArgs e) {
-            NewKNNForm spamSpottingForm = new NewKNNForm();
+            CosineSimilarityForm spamSpottingForm = new CosineSimilarityForm();
             spamSpottingForm.WordCountTable = WordCountTable;
             spamSpottingForm.IsRemoveStopWordsChecked = RemoveStopWordsCheckbox.Checked;
             spamSpottingForm.IsStemWordsChecked = StemWordsCheckbox.Checked;
